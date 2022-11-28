@@ -15,7 +15,11 @@ describe("ERC721a", () => {
       "0xbeefbeefbeefbeefbeefbeefbeefbeefbeefbeefbeefbeefbeefbeefbeefbeef",
       deployer.provider
     );
-    token = await new NFTa__factory(deployer).deploy("ERC721a", "NFTa");
+    token = await new NFTa__factory(deployer).deploy(
+      "ERC721a",
+      "NFTa",
+      "https://ipfs.io/ipfs"
+    );
     // Send ETH to user from signer.
     await deployer.sendTransaction({
       to: user.address,
@@ -28,9 +32,18 @@ describe("ERC721a", () => {
     const address = token.address;
     const verifyAddress = isAddress(address);
     expect(verifyAddress === true);
+
+    expect(await token.name()).to.equal("ERC721a");
+    expect(await token.symbol()).to.equal("NFTa");
+    expect(await token.totalMinted()).to.equal(0);
+    expect(await token.totalBurned()).to.equal(0);
+    expect(await token.getBaseURI()).to.equal("https://ipfs.io/ipfs");
   });
 
   it("Should mint tokens", async () => {
+    await expect(token.connect(user).safeMint(user.address, 0)).revertedWith(
+      "safeMint"
+    );
     await token.safeMint(user.address, 5);
     const balance = await token.balanceOf(user.address);
     expect(balance).to.equal(5);
@@ -38,10 +51,15 @@ describe("ERC721a", () => {
     //Check token exists
     const tokenExists = await token.exists(1);
     expect(tokenExists === true);
+    await expect(token.tokenURI(19)).revertedWith("Nonexistent token");
+    expect(await token.tokenURI(1)).to.equal("https://ipfs.io/ipfs/1.json");
 
     //Check total minted
     const total = await token.totalMinted();
     expect(total === ethers.utils.parseEther("5"));
+
+    const owner = await token.getOwnershipOf(1);
+    expect(owner[0]).to.equal(user.address);
   });
 
   it("Should return the owner of an indexed token", async () => {
