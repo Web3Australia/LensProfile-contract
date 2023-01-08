@@ -69,6 +69,9 @@ contract ProfileNft is ERC721, ERC721Enumerable, ERC721Burnable {
         return "https://www.lens-profile.xyz/profile/";
     }
 
+    /**
+     * @dev Disable transfer.
+     */
     function _transfer(
         address from,
         address to,
