@@ -13,10 +13,13 @@ struct Signature {
 
 contract ProfileNft is ERC721, ERC721Enumerable, ERC721Burnable {
     using Counters for Counters.Counter;
+    //Token ID counter
     Counters.Counter private _tokenIds;
+    //Address of the contract
     address private self;
     //Address for signature verification
     address private signer;
+    //Transfer enabled
     bool private transferEnabled;
 
     constructor() ERC721("Profile NFT", "PNFT") {
@@ -25,6 +28,14 @@ contract ProfileNft is ERC721, ERC721Enumerable, ERC721Burnable {
         transferEnabled = false;
     }
 
+    /**
+     * @dev Mint a new NFT.
+     * @param _to The address that will own the minted NFT.
+     * @param _profileId The profile id of the user.
+     * @param _hash The hash of the profile.
+     * @param _signature The signature of the user.
+     * @return A unique token ID.
+     */
     function mint(
         address _to,
         uint256 _profileId,
@@ -43,6 +54,9 @@ contract ProfileNft is ERC721, ERC721Enumerable, ERC721Burnable {
         return newTokenId;
     }
 
+    /**
+     * @dev Burns a specific NFT.
+     */
     function burn(uint256 tokenId) public virtual override {
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
